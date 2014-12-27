@@ -1,3 +1,4 @@
-gui.iml
 .idea
 out
+gui.iml
+test/test.iml
