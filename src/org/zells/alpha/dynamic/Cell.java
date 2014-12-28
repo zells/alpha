@@ -2,13 +2,21 @@ package org.zells.alpha.dynamic;
 
 public interface Cell {
 
-    public Object receive(Object message);
+    public Cell stem();
+
+    public Cell parent();
+
+    public String name();
+
+    public String fullName();
 
     public Object receive(Object message, Cell self);
 
-    public Object get(String name);
+    public void add(Cell child);
 
-    public void add(String name, Object child);
+    public Cell child(String name);
+
+    public Iterable<Cell> children();
 
     public void remove(String name);
 }
