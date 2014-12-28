@@ -2,14 +2,16 @@ package org.zells.alpha;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.zells.alpha.dynamic.Cell;
 import org.zells.alpha.dynamic.ScriptedCell;
+import org.zells.alpha.dynamic.ScriptedResponse;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ScriptedCellTest {
 
-    private Map<String, ScriptedCell> cells = new HashMap<String, ScriptedCell>();
+    private Map<String, Cell> cells = new HashMap<String, Cell>();
     private Object response;
 
     @Test
@@ -87,19 +89,19 @@ public class ScriptedCellTest {
     }
 
     private void givenACell(String name) {
-        cells.put(name, new ScriptedCell(name, null, null));
+        cells.put(name, new Cell(name, null, null));
     }
 
     private void givenACell_Extending(String name, String stem) {
-        cells.put(name, new ScriptedCell(name, cells.get(stem), null));
+        cells.put(name, new Cell(name, cells.get(stem), null));
     }
 
     private void given_RespondsWith(String name, String code) {
-        cells.get(name).respond(code);
+        cells.get(name).respond(new ScriptedResponse(code));
     }
 
     private void given_HasTheChild(String parentName, String childName) {
-        ScriptedCell child = new ScriptedCell(childName, null, cells.get(parentName));
+        Cell child = new Cell(childName, null, cells.get(parentName));
         cells.get(parentName).add(child);
         cells.put(childName, child);
     }
@@ -114,11 +116,11 @@ public class ScriptedCellTest {
     }
 
     private void whenISend_To(Object message, String cell) {
-        response = cells.get(cell).receive(message, cells.get(cell));
+        response = new ScriptedCell(cells.get(cell)).call(message);
     }
 
     private void thenTheResponseShouldBeTheCell(String name) {
-        thenTheResponseShouldBe(cells.get(name));
+        Assert.assertEquals(cells.get(name), ((ScriptedCell) response).cell);
     }
 
     private void thenTheResponseShouldBe(Object o) {
