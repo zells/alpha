@@ -3,7 +3,9 @@ package org.zells.alpha.dynamic;
 import org.zells.alpha.core.Body;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Cell {
     private String name;
@@ -87,7 +89,16 @@ public class Cell {
     }
 
     public Iterable<Cell> children() {
-        return children;
+        Map<String, Cell> all = new HashMap<String, Cell>();
+        if (stem != null) {
+            for (Cell c : stem.children()) {
+                all.put(c.name(), c);
+            }
+        }
+        for (Cell c : children) {
+            all.put(c.name(), c);
+        }
+        return all.values();
     }
 
     @Override

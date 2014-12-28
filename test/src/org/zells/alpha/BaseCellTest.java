@@ -47,6 +47,17 @@ public class BaseCellTest {
     }
 
     @Test
+    public void listInheritedChildren() {
+        givenACell("stem");
+        given_HasAChild("stem", "foo");
+        given_HasAChild("stem", "bar");
+        givenACell_Extending("cell", "stem");
+        given_HasAChild("cell", "bar");
+        given_HasAChild("cell", "baz");
+        then_ShouldHave_Children("cell", 3);
+    }
+
+    @Test
     public void adoptChild() {
         givenACell("stem");
         given_HasAChild("stem", "foo");
