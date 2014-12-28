@@ -2,7 +2,6 @@ package org.zells.alpha;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.zells.alpha.dynamic.BaseCell;
 import org.zells.alpha.dynamic.Cell;
 
 import java.util.*;
@@ -53,10 +52,25 @@ public class BaseCellTest {
         given_HasAChild("stem", "foo");
         givenACell_Extending("cell", "stem");
 
-        whenIAdd_ToTheChild_Of("bar", "foo", "cell");
+        whenIAdd_To("bar", "cell.foo");
 
         then_ShouldHave_Children("foo", 0);
         then_ShouldHave_Children("cell.foo", 1);
+        then_ShouldHaveTheStem("cell.foo", "foo");
+    }
+
+    @Test
+    public void recursiveInheritanceAndAdoption() {
+        givenACell("stem");
+        givenACell_Extending("cell", "stem");
+        given_HasAChild("stem", "foo");
+        given_HasAChild("stem.foo", "bar");
+
+        whenIGet("cell.foo.bar");
+        thenItsFullNameShouldBe("cell.foo.bar");
+
+        whenIAdd_To("baz", "cell.foo.bar");
+        then_ShouldHaveTheStem("cell.foo.bar", "bar");
         then_ShouldHaveTheStem("cell.foo", "foo");
     }
 
@@ -77,8 +91,8 @@ public class BaseCellTest {
         return cell;
     }
 
-    private void whenIAdd_ToTheChild_Of(String cell, String child, String parent) {
-        cells.get(parent).child(child).add(new BaseCell(cell, null, null));
+    private void whenIAdd_To(String child, String cell) {
+        resolve(cell).add(new Cell(child, null, null));
     }
 
     private void thenIShouldGet(String cell) {
@@ -102,16 +116,17 @@ public class BaseCellTest {
     }
 
     private void given_HasAChild(String parent, String child) {
-        cells.put(child, new BaseCell(child, null, cells.get(parent)));
-        cells.get(parent).add(cells.get(child));
+        Cell cell = resolve(parent);
+        cells.put(child, new Cell(child, null, cell));
+        cell.add(cells.get(child));
     }
 
     private void givenACell(String name) {
-        cells.put(name, new BaseCell(name, null, null));
+        cells.put(name, new Cell(name, null, null));
     }
 
     private void givenACell_Extending(String name, String stem) {
-        cells.put(name, new BaseCell(name, cells.get(stem), null));
+        cells.put(name, new Cell(name, cells.get(stem), null));
     }
 
     private void thenItShouldThrowTheException(String message) {
