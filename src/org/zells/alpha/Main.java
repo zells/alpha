@@ -1,8 +1,6 @@
 package org.zells.alpha;
 
-import org.zells.alpha.rendering.Gui;
-import org.zells.alpha.snake.Game;
-import org.zells.alpha.test.Test;
+import org.zells.alpha.gui.Gui;
 
 import javax.script.ScriptException;
 import javax.swing.*;
@@ -13,10 +11,7 @@ public class Main {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                Game game = new Game();
-                new Gui(game);
-
-                new Gui(Test.build());
+                new Gui();
             }
         });
     }

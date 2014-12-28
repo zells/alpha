@@ -1,8 +1,8 @@
 package org.zells.alpha.rendering;
 
 import org.zells.alpha.core.Body;
-import org.zells.alpha.core.Cell;
 import org.zells.alpha.core.eventing.SpecificEventListener;
+import org.zells.alpha.dynamic.Cell;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,15 +10,15 @@ import java.awt.event.*;
 import java.awt.geom.*;
 
 public class View extends JPanel {
-    private Body root;
+    private Body body;
     private Point2D origin;
     private double scale = 1;
     private double zoom = 1;
     private Canvas canvas;
 
     public View(Cell c, Dimension size) {
-        root = c.body;
-        root.events().add(new SpecificEventListener<Body.RepaintEvent>(Body.RepaintEvent.class) {
+        body = c.body;
+        body.events().add(new SpecificEventListener<Body.RepaintEvent>(Body.RepaintEvent.class) {
             @Override
             protected void handleSpecific(Body.RepaintEvent event) {
                 repaint();
@@ -50,7 +50,7 @@ public class View extends JPanel {
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-        canvas = new Canvas(root, getZoomedSize(), g);
+        canvas = new Canvas(body, getZoomedSize(), g);
         canvas.transformation().setTransform(transformation());
         canvas.render();
     }

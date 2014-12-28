@@ -1,5 +1,7 @@
 package org.zells.alpha.dynamic;
 
+import org.zells.alpha.core.Body;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,8 @@ public class Cell {
     private Cell parent;
     private List<Cell> children = new ArrayList<Cell>();
     private Response response;
+
+    public Body body = new Body();
 
     public Cell(String name, Cell stem, Cell parent) {
         this.name = name;
@@ -75,18 +79,11 @@ public class Cell {
         children.add(child);
     }
 
-    public void remove(String name) {
-        Cell remove = null;
-        for (Cell child : children) {
-            if (child.name().equals(name)) {
-                remove = child;
-                break;
-            }
-        }
-        if (remove == null) {
+    public void remove(Cell child) {
+        if (!children.contains(child)) {
             throw new RuntimeException("Cannot remove inherited cell [" + name + "]");
         }
-        children.remove(remove);
+        children.remove(child);
     }
 
     public Iterable<Cell> children() {

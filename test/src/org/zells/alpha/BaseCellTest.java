@@ -112,7 +112,7 @@ public class BaseCellTest {
     }
 
     private void whenIRemove_From(String child, String parent) {
-        cells.get(parent).remove(child);
+        cells.get(parent).remove(cells.get(child));
     }
 
     private void given_HasAChild(String parent, String child) {
