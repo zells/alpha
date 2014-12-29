@@ -45,6 +45,15 @@ public class ScriptedCellTest {
     }
 
     @Test
+    public void createChildWithAssignment() {
+        givenACell_Responding("cell", "self.bar = self.foo; self.bar");
+        given_HasTheChild("cell", "foo");
+        whenISendAMessageTo("cell");
+        thenTheResponseShouldHaveTheStem("foo");
+        then_ShouldHaveAChild("cell", "bar");
+    }
+
+    @Test
     public void accessParent() {
         givenACell("foo");
         given_HasTheChild("foo", "bar");
@@ -123,7 +132,15 @@ public class ScriptedCellTest {
         Assert.assertEquals(cells.get(name), ((ScriptedCell) response).cell);
     }
 
+    private void thenTheResponseShouldHaveTheStem(String cell) {
+        Assert.assertEquals(cells.get(cell), ((ScriptedCell) response).cell.stem());
+    }
+
     private void thenTheResponseShouldBe(Object o) {
         Assert.assertEquals(o, response);
+    }
+
+    private void then_ShouldHaveAChild(String parent, String child) {
+        cells.get(parent).child(child);
     }
 }

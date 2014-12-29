@@ -17,6 +17,12 @@ public class ScriptedCell extends BaseFunction {
     }
 
     @Override
+    public void put(String name, Scriptable start, Object value) {
+        cell.add(new Cell(name, ((ScriptedCell) value).cell, cell));
+        super.put(name, start, value);
+    }
+
+    @Override
     public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
         return call(args[0]);
     }
@@ -24,5 +30,4 @@ public class ScriptedCell extends BaseFunction {
     public Object call(Object message) {
         return cell.receive(message);
     }
-
 }
