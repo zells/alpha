@@ -3,11 +3,11 @@ package org.zells.alpha;
 import org.junit.Assert;
 import org.junit.Test;
 import org.zells.alpha.dynamic.Cell;
+import org.zells.alpha.dynamic.NativeCell;
 import org.zells.alpha.dynamic.ScriptedCell;
 import org.zells.alpha.dynamic.ScriptedResponse;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ScriptedCellTest {
 
@@ -97,6 +97,34 @@ public class ScriptedCellTest {
         thenTheResponseShouldBeTheCell("cell");
     }
 
+    @Test
+    public void autoBoxPrimitives() {
+        givenACell_Responding("cell", "self.foo = 42");
+        whenISendAMessageTo("cell");
+        then_ShouldHaveAChild("cell", "foo");
+        then_ShouldBeANativeCellFor("cell.foo", 42);
+    }
+
+    @Test
+    public void autoUnBoxNativeCells() {
+        givenACell_Responding("cell", "self.foo + 31");
+        given_HasTheNativeChild_For("cell", "foo", 42);
+        whenISendAMessageTo("cell");
+        thenTheResponseShouldBe(73.0);
+    }
+
+    @Test
+    public void autoUnBoxObjects() {
+        List<Double> list = new ArrayList<Double>();
+
+        givenACell_Responding("cell", "self.foo.add(42)");
+        given_HasTheNativeChild_For("cell", "foo", list);
+        whenISendAMessageTo("cell");
+
+        Assert.assertEquals(1, list.size());
+        Assert.assertEquals(42.0, list.get(0), 0.0);
+    }
+
     private void givenACell(String name) {
         cells.put(name, new Cell(name, null, null));
     }
@@ -109,10 +137,14 @@ public class ScriptedCellTest {
         cells.get(name).respond(new ScriptedResponse(code));
     }
 
-    private void given_HasTheChild(String parentName, String childName) {
-        Cell child = new Cell(childName, null, cells.get(parentName));
-        cells.get(parentName).add(child);
-        cells.put(childName, child);
+    private void given_HasTheChild(String parent, String child) {
+        cells.put(child, new Cell(child, null, cells.get(parent)));
+        cells.get(parent).add(cells.get(child));
+    }
+
+    private void given_HasTheNativeChild_For(String parent, String child, Object o) {
+        cells.put(child, new NativeCell(child, o, cells.get(parent)));
+        cells.get(parent).add(cells.get(child));
     }
 
     private void givenACell_Responding(String name, String code) {
@@ -132,6 +164,10 @@ public class ScriptedCellTest {
         Assert.assertEquals(cells.get(name), ((ScriptedCell) response).cell);
     }
 
+    private void then_ShouldBeANativeCellFor(String cell, Object o) {
+        Assert.assertEquals(o, ((NativeCell) resolve(cell)).object);
+    }
+
     private void thenTheResponseShouldHaveTheStem(String cell) {
         Assert.assertEquals(cells.get(cell), ((ScriptedCell) response).cell.stem());
     }
@@ -142,5 +178,18 @@ public class ScriptedCellTest {
 
     private void then_ShouldHaveAChild(String parent, String child) {
         cells.get(parent).child(child);
+    }
+
+    private Cell resolve(String path) {
+        Stack<String> names = new Stack<String>();
+        List<String> list = Arrays.asList(path.split("\\."));
+        Collections.reverse(list);
+        names.addAll(list);
+
+        Cell cell = cells.get(names.pop());
+        while (!names.isEmpty()) {
+            cell = cell.child(names.pop());
+        }
+        return cell;
     }
 }

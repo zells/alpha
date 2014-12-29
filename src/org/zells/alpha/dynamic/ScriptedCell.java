@@ -13,12 +13,20 @@ public class ScriptedCell extends BaseFunction {
 
     @Override
     public Object get(String name, Scriptable start) {
-        return new ScriptedCell(cell.child(name));
+        Cell child = cell.child(name);
+        if (child instanceof NativeCell) {
+            return ((NativeCell) child).object;
+        }
+        return new ScriptedCell(child);
     }
 
     @Override
     public void put(String name, Scriptable start, Object value) {
-        cell.add(new Cell(name, ((ScriptedCell) value).cell, cell));
+        if (value instanceof ScriptedCell) {
+            cell.add(new Cell(name, ((ScriptedCell) value).cell, cell));
+        } else {
+            cell.add(new NativeCell(name, value, cell));
+        }
         super.put(name, start, value);
     }
 
